@@ -1,0 +1,11 @@
+{
+  "labels":[
+    "ZOOM_IN",
+    "ZOOM_OUT",
+    "SHOW",
+    "FOCUS",
+    "PAN"
+  ],
+  "threshold":0.0,
+  "positive_label":null
+}

@@ -1,0 +1,195 @@
+{% extends "main.html" %}
+
+
+{% block content %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Route Planner</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            padding: 10px;
+            background-color: #f0f0f0;
+        }
+        .content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        .sidebar {
+            width: 300px;
+            padding: 10px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+        }
+        #map-container {
+            flex: 1;
+            position: relative;
+        }
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+        input[type="submit"] {
+            padding: 5px 10px;
+            width: 100%;
+        }
+        #routeInfo, #directions {
+            margin-top: 20px;
+        }
+        #directions ul {
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Route Planner</h1>
+    </div>
+    <div class="content">
+        <div class="sidebar">
+            <form id="routeForm">
+                {% csrf_token %}
+                <input type="text" name="start" placeholder="Start location" required>
+                <input type="text" name="end" placeholder="End location" required>
+                <input type="submit" value="Get Route">
+            </form>
+            <div id="routeInfo"></div>
+            <div id="directions"></div>
+        </div>
+        <div id="map-container">
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize the map
+        var map = L.map('map', {
+            center: [0, 0],
+            zoom: 2,
+            maxBounds: [[-90, -180], [90, 180]],
+            maxBoundsViscosity: 1.0
+        });
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+
+        var routeLayer;
+
+        // Ensure the map fills the available space
+        function resizeMap() {
+            console.log('Resizing map');
+            map.invalidateSize();
+        }
+
+        // Call resizeMap when the window is resized
+        window.addEventListener('resize', resizeMap);
+        
+        // Initial call to set the correct size
+        setTimeout(resizeMap, 0);
+
+        document.getElementById('routeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+
+            fetch('', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('routeInfo').innerHTML = '<p>Error: ' + data.error + '</p>';
+                    document.getElementById('directions').innerHTML = '';
+                } else {
+                    if (routeLayer) {
+                        map.removeLayer(routeLayer);
+                    }
+
+                    var coordinates = data.features[0].geometry.coordinates;
+                    var latLngs = coordinates.map(coord => [coord[1], coord[0]]);
+
+                    
+                    L.marker([data.start[1], data.start[0]], autoPanOnFocus=true, draggable=true).addTo(map)
+                    L.marker([data.end[1], data.end[0]], autoPanOnFocus=true, draggable=true).addTo(map)
+                    
+                    routeLayer = L.polyline(latLngs, {color: 'blue'}).addTo(map);
+                    map.fitBounds(routeLayer.getBounds());
+
+                    var distance = data.features[0].properties.summary.distance;
+                    var duration = data.features[0].properties.summary.duration;
+
+                    document.getElementById('routeInfo').innerHTML = `
+                        <p>Distance: ${(distance / 1000).toFixed(2)} km</p>
+                        <p>Duration: ${(duration / 60).toFixed(2)} minutes</p>
+                    `;
+
+                    // Display turn-by-turn directions
+                    var directionsHtml = '<h2>Turn-by-Turn Directions:</h2><ul>';
+                    data.directions.forEach(step => {
+                        directionsHtml += `<li>${step.instruction} (${step.distance.toFixed(2)} m)</li>`;
+                    });
+                    directionsHtml += '</ul>';
+                    document.getElementById('directions').innerHTML = directionsHtml;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('routeInfo').innerHTML = '<p>An error occurred. Please try again.</p>';
+                document.getElementById('directions').innerHTML = '';
+            });
+        });
+
+        // Debug: Log map dimensions
+        {% comment %} setInterval(() => {
+            console.log('Map container size:', 
+                document.getElementById('map-container').offsetWidth, 
+                document.getElementById('map-container').offsetHeight
+            );
+            console.log('Map size:', 
+                document.getElementById('map').offsetWidth, 
+                document.getElementById('map').offsetHeight
+            );
+        }, 5000); {% endcomment %}
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const navbarToggle = document.getElementById('navbar-toggle');
+            const navbarSticky = document.getElementById('navbar-sticky');
+        
+            navbarToggle.addEventListener('click', function() {
+                navbarSticky.classList.toggle('hidden');
+            });
+        });
+    </script>
+</body>
+
+{% endblock content %}

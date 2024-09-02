@@ -1,0 +1,92 @@
+{% extends "main.html" %}
+{% load static %}
+{% block content %}
+
+<div class="bg-gray-100">
+    <div class="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+        <h1 class="text-3xl font-bold mb-6 text-center">RouteQ Documentation</h1>
+        
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold mb-4 flex items-center space-x-2">
+                <i class="fa-solid fa-microphone"></i><p>Voice Command Basics</p>
+            </h2>
+            <div class="flex flex-col md:flex-row items-center mb-4">
+                <div class="md:w-1/2 pr-4">
+                    <p class="mb-4">To use the voice search feature, follow these steps:</p>
+                    <ol class="list-decimal list-inside space-y-2">
+                        <li>Click on the microphone icon.</li>
+                        <li>After activation, speak your search query clearly and concisely.</li>
+                        <li>Wait for the system to process your request.</li>
+                    </ol>
+                </div>
+                <div class="md:w-1/2 mt-4 md:mt-0">
+                    <img src="{% static "images/search-1.png" %}" alt="Voice command interface" class="rounded-lg shadow-md"/>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold mb-4 flex items-center space-x-2">
+                <i class="fa-solid fa-magnifying-glass"></i><p>Search Commands</p>
+            </h2>
+            <div class="flex flex-col md:flex-row items-center mb-4">
+                <div class="md:w-1/2 pr-4">
+                    <p class="mb-4">Use the following format for voice search queries:</p>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li><strong>Single location:</strong> "Navigate to [Location]"</li>
+                        <li><strong>Route search:</strong> "Show route from [Location1] to [Location2]"</li>
+                    </ul>
+                    <p class="mt-4"><strong>Example:</strong> "Show route from New York to Central Park"</p>
+                    <p class="mt-4"><strong>Important:</strong> When typing searches, use lowercase for all words except the first letter of location names. Include "from" before the first location and "to" between locations.</p>
+                </div>
+                <div class="md:w-1/2 mt-4 md:mt-0">
+                    <img src="{% static "images/search-2.png" %}" alt="Map search results" class="rounded-lg shadow-md"/>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold mb-4 flex items-center space-x-2">
+                <i class="fa-solid fa-map"></i> <p>Map Interaction</p>
+            </h2>
+            <p class="mb-4">After your location is shown on the map, you can use these features:</p>
+            <ul class="list-disc list-inside space-y-2">
+                <li><strong>Voice zoom:</strong> Say "Zoom in" or "Zoom out" into the microphone on the right side of the map.</li>
+                <li><strong>Distance measurement:</strong> Click the location icon on the right side to find the straight-line distance between two points. <strong>Note: This is a straight line distance, not a road route.</strong></li>
+                <li><strong>Layer toggle:</strong> Use the layers icon to switch between different map views.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2 class="text-2xl font-semibold mb-4 flex items-center space-x-2">
+                <i class="fa-solid fa-book"></i> <p>Tips for Best Results</p>
+            </h2>
+            <ul class="list-disc list-inside space-y-2">
+                <li>Speak clearly and at a moderate pace when using voice commands.</li>
+                <li>Use specific location names for accurate results.</li>
+                <li>If the system doesn't understand, try rephrasing your request.</li>
+                <li>When typing, remember to use the correct format: lowercase with capitalized location names.</li>
+            </ul>
+        </section>
+    </div>
+</div>
+
+
+{% endblock content %}
+
+{% block scripts %}
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const navbarToggle = document.getElementById('navbar-toggle');
+        const navbarSticky = document.getElementById('navbar-sticky');
+
+        navbarToggle.addEventListener('click', function() {
+            navbarSticky.classList.toggle('hidden');
+        });
+    });
+
+</script>
+
+{% endblock scripts %}

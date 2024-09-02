@@ -1,0 +1,296 @@
+{% extends "main.html" %}
+
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoiceAtlas - Interactive Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <style>
+        #map {
+            height: 600px;
+            width: 100%;
+        }
+        .layer-control {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+        }
+    </style>
+</head>
+<body>
+    {% comment %} <div id="map"></div>
+    <div class="layer-control">
+        <h3>Map Layers</h3>
+        <select id="layer-select">
+            <option value="streets">Google Streets</option>
+            <option value="hybrid">Google Hybrid</option>
+            <option value="satellite">Google Satellite</option>
+            <option value="terrain">Google Terrain</option>
+        </select>
+    </div> {% endcomment %}
+
+
+    <div class="mb-6 relative" x-data="{ 
+        activeDropdown: null,
+        categories: [],
+        showCategoryModal: false,
+        showLocationModal: false,
+        newCategoryName: '',
+        newLocationName: '',
+        selectedCategory: null,
+        async fetchCategories() {
+            // Replace with your actual API endpoint
+            const response = await fetch('/api/categories/');
+            this.categories = await response.json();
+        },
+        async createCategory() {
+            // Replace with your actual API endpoint
+            await fetch('/api/categories/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name: this.newCategoryName })
+            });
+            this.newCategoryName = '';
+            this.showCategoryModal = false;
+            this.fetchCategories();
+        },
+        async addLocation() {
+            // Replace with your actual API endpoint
+            await fetch(`/api/categories/${this.selectedCategory.id}/locations/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name: this.newLocationName })
+            });
+            this.newLocationName = '';
+            this.showLocationModal = false;
+            this.fetchCategories();
+        }
+    }" x-init="fetchCategories">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Quick Access</h2>
+        
+        <!-- Create Category Button -->
+        <button @click="showCategoryModal = true" class="mb-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Create Category
+        </button>
+    
+        <ul class="space-y-3">
+            <!-- Category items -->
+            <template x-for="category in categories" :key="category.id">
+                <li class="relative" x-on:mouseenter="activeDropdown = category.id" x-on:mouseleave="activeDropdown = null">
+                    <div class="flex items-center justify-between space-x-3 p-2 rounded-lg hover:bg-blue-50 transition duration-300">
+                        <div class="flex items-center space-x-3">
+                            <i class="fa-regular fa-star w-5 h-5 text-yellow-500"></i>
+                            <span class="text-gray-700" x-text="category.name"></span>
+                        </div>
+                        <button @click="selectedCategory = category; showLocationModal = true" class="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 rounded text-sm">
+                            Add Location
+                        </button>
+                    </div>
+                    <div x-show="activeDropdown === category.id" class="absolute left-0 mt-2 w-80 rounded-md shadow-lg z-10 bg-white ring-1 ring-black ring-opacity-5" x-cloak>
+                        <div class="py-1">
+                            <template x-for="location in category.locations" :key="location.id">
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" x-text="location.name"></a>
+                            </template>
+                        </div>
+                    </div>
+                </li>
+            </template>
+        </ul>
+    
+        <!-- Create Category Modal -->
+        <div x-show="showCategoryModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" x-cloak>
+            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                <div class="mt-3 text-center">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Create New Category</h3>
+                    <div class="mt-2 px-7 py-3">
+                        <input type="text" x-model="newCategoryName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" placeholder="Category Name">
+                    </div>
+                    <div class="items-center px-4 py-3">
+                        <button @click="createCategory" class="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                            Create
+                        </button>
+                    </div>
+                    <div class="items-center px-4 py-3">
+                        <button @click="showCategoryModal = false" class="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Add Location Modal -->
+        <div x-show="showLocationModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" x-cloak>
+            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                <div class="mt-3 text-center">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Add Location to <span x-text="selectedCategory?.name"></span></h3>
+                    <div class="mt-2 px-7 py-3">
+                        <input type="text" x-model="newLocationName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" placeholder="Location Name">
+                    </div>
+                    <div class="items-center px-4 py-3">
+                        <button @click="addLocation" class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300">
+                            Add
+                        </button>
+                    </div>
+                    <div class="items-center px-4 py-3">
+                        <button @click="showLocationModal = false" class="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    
+    <script>
+        // Initialize the map
+        var map = L.map('map').setView([0, 0], 2);
+
+        // Define the layer groups
+        var googleStreets = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0','mt1','mt2','mt3']
+        });
+
+        var googleHybrid = L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0','mt1','mt2','mt3']
+        });
+
+        var googleSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0','mt1','mt2','mt3']
+        });
+
+        var googleTerrain = L.tileLayer('http://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0','mt1','mt2','mt3']
+        });
+
+        // Create an object to easily switch between layers
+        var baseLayers = {
+            "streets": googleStreets,
+            "hybrid": googleHybrid,
+            "satellite": googleSat,
+            "terrain": googleTerrain
+        };
+
+        // Set the default layer
+        googleStreets.addTo(map);
+
+        // Handle layer switching
+        document.getElementById('layer-select').addEventListener('change', function(e) {
+            var selectedLayer = baseLayers[e.target.value];
+            map.eachLayer(function(layer) {
+                map.removeLayer(layer);
+            });
+            selectedLayer.addTo(map);
+        });
+
+
+
+
+
+
+
+
+
+
+        // ******************************** Marker ***********************************
+
+        // Variable to store markers and route
+        var markers = [];
+        var route = null;
+        var routeControl = null;
+        var isRoutingMode = false;
+
+        // Function to clear existing markers and route
+        function clearMapElements() {
+            markers.forEach(marker => map.removeLayer(marker));
+            markers = [];
+            if (route) {
+                map.removeLayer(route);
+                route = null;
+            }
+            if (routeControl) {
+                map.removeControl(routeControl);
+                routeControl = null;
+            }
+        }
+
+        // Function to handle map clicks for routing
+        function onMapClick(e) {
+            if (markers.length < 2) {
+                var marker = L.marker(e.latlng).addTo(map);
+                markers.push(marker);
+                
+                if (markers.length === 2) {
+                    calculateRoute();
+                }
+            }
+        }
+
+        // Function to calculate and display route
+        function calculateRoute() {
+            if (markers.length !== 2) return;
+
+            var start = markers[0].getLatLng();
+            var end = markers[1].getLatLng();
+
+            // Use Leaflet Routing Machine for routing
+            routeControl = L.Routing.control({
+                waypoints: [
+                    L.latLng(start.lat, start.lng),
+                    L.latLng(end.lat, end.lng)
+                ],
+                routeWhileDragging: true,
+                show: false  // Hide default instructions
+            }).addTo(map);
+
+            routeControl.on('routesfound', function(e) {
+                var routes = e.routes;
+                var summary = routes[0].summary;
+                
+                // Display route info (you can customize this part)
+                alert(`Distance: ${(summary.totalDistance / 1000).toFixed(2)} km\nEstimated time: ${Math.round(summary.totalTime / 60)} minutes`);
+            });
+        }
+
+        // Function to toggle routing mode
+        function toggleRoutingMode() {
+            isRoutingMode = !isRoutingMode;
+            clearMapElements();
+            
+            if (isRoutingMode) {
+                map.on('click', onMapClick);
+                alert("Routing mode activated. Click on two locations to find a route.");
+            } else {
+                map.off('click', onMapClick);
+                alert("Routing mode deactivated.");
+            }
+        }
+
+        // Add click event listener to the routing button
+        document.querySelector('.fa-location-dot').parentElement.addEventListener('click', toggleRoutingMode);
+    </script>
+</body>
+</html>
+
+{% endblock content %}

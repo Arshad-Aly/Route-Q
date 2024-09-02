@@ -1,0 +1,37 @@
+{% load pwa %}
+{% load static %}
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Route-Q | Your voice is the new compass</title>
+    <link href="{% static 'fontawesomefree/css/fontawesome.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/brands.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/solid.css' %}" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="{% static 'css/dist/styles.css' %}">
+    {% tailwind_css %}
+    {% progressive_web_app_meta %}
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+</head>
+<body>
+
+    
+    {% include "navbar.html" %}
+
+    <hr>
+
+    {% block content %}
+    
+    {% endblock content %}
+        
+    
+    {% block scripts %}
+    {% endblock scripts %}
+
+    {% include "footer.html" %}
+    
+</body>
+</html>

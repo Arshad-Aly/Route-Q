@@ -1,0 +1,133 @@
+{% extends "main.html" %}
+{% load static %}
+
+{% block content %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Route Planner</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+    {% comment %} <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script> {% endcomment %}
+    {% comment %}  *********** marker******************* {% endcomment %}
+    {% comment %} <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" /> {% endcomment %}
+    {% comment %} <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script> {% endcomment %}
+    {% comment %} <script src="{% static "js/main_home.js" %}"></script> {% endcomment %}
+
+    <style>
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0px 1000px transparent inset;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr !important;
+            }
+            
+            #sidebar {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 1000;
+                background-color: white;
+            }
+            
+            #menu-toggle {
+                display: block !important;
+            }
+            
+            .col-span-3 {
+                grid-column: span 1 / span 1 !important;
+            }
+            
+            .w-2/3 {
+                width: 90% !important;
+            }
+        }
+
+    </style>
+    
+</head>
+<body class="">
+
+    <div id="transcription" class="hidden"></div>
+    
+    <div>
+
+    </div>
+
+
+    <main class="container flex-1 grid grid-cols-4 overflow-hidden h-full">
+        <div id="sidebar" class="col-span-1
+            lg:h-screen lg:overflow-y-auto
+        ">
+            <button id="close-sidebar" class="absolute top-4 right-4 lg:hidden">
+                <i class="fas fa-times"></i>
+            </button>
+            {% include "base/sidebar.html" %}
+        </div>
+
+        <div class="col-span-3 relative h-[100vh]">
+            <!-- Menu toggle button for small screens -->
+            <button id="menu-toggle" class="fixed top-[12rem] left-4 z-20 bg-white p-2 rounded-full shadow-lg hidden">
+                <i class="fa-solid fa-ellipsis"></i>
+            </button>
+
+            <!-- Full-size map container -->
+            <div id="map-container" class="absolute inset-0">
+                <div id="map" class="w-full h-full z-0"></div>
+            </div>
+    
+            <!-- Floating search bar -->
+            <div class="absolute top-6 left-1/2 transform -translate-x-1/2 w-2/3 max-w-2xl z-10">
+                <div class="bg-white rounded-full shadow-lg flex items-center p-2">
+                    <svg class="w-5 h-5 text-gray-400 ml-3">
+                        <use href="#search"/>
+                    </svg>
+                    <form id="routeForm" method="POST" class="w-full">
+                        {% csrf_token %}
+                        <input 
+                            id="Inp" 
+                            name="location" 
+                            required
+                            type="text" 
+                            placeholder="Search locations or ask for directions..." 
+                            class="flex-1 p-3 w-full outline-none border-none focus:ring-0 active:bg-transparent focus:ring-offset-0 bg-transparent text-gray-700"
+                        >
+                    </form>
+                    <button class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-3 rounded-full hover:from-blue-600 hover:to-indigo-700 transition duration-300 w-[52px]" id="startButton" onclick="startRecording()">
+                        <i class="fa-solid fa-microphone"></i>
+                    </button>
+                    <button class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-3 rounded-full hover:from-blue-600 hover:to-indigo-700 transition duration-300 w-[52px] hidden" id="stopButton" onclick="stopRecording()">
+                        <i class="fa-solid fa-microphone-slash"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="alert" class="fixed top-1/4 right-4 z-10">
+                
+            </div>
+            <div class="fixed right-6 top-1/2 transform -translate-y-1/2 flex flex-col space-y-4 z-10">
+                <button class="bg-white p-3 rounded-full shadow-lg hover:bg-gray-100 transition duration-300 w-[52px] h-[52px] flex items-center justify-center">
+                    <i class="fa-solid fa-location-dot"></i>
+                </button>  
+                <button id="voiceCommandButton" class="hidden bg-white p-3 rounded-full shadow-lg hover:bg-gray-100 transition duration-300 w-[52px]">
+                    <i class="fa-solid fa-microphone"></i>
+                </button>
+                <button class="bg-white p-3 rounded-full shadow-lg hover:bg-gray-100 transition duration-300 w-[52px] h-[52px] flex items-center justify-center">
+                    <i class="fa-solid fa-layer-group text-gray-600"></i>
+                </button>
+            </div>
+        </div>
+    </main>
+
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="{% static "js/main_home.js" %}"></script>
+
+</body>
+{% endblock content %}
+

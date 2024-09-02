@@ -1,0 +1,95 @@
+{% extends "main.html" %}
+
+{% block content %}
+
+  <div class="container mx-auto px-4 py-12">
+    <div class="flex flex-wrap -mx-4">
+        <div class="w-full lg:w-7/12 px-4 mb-8 lg:mb-0">
+            <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+                <h2 class="text-3xl font-bold mb-2">Contact me</h2>
+                <div class="flex flex-wrap -mx-3 mb-6">
+                    <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="first-name">
+                            Name
+                        </label>
+                        <input class="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="first-name" type="text">
+                    </div>
+                    <div class="w-full md:w-1/2 px-3">
+                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="email">
+                            Email
+                        </label>
+                        <input class="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="email" type="email">
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="message">
+                        What do you have in mind
+                    </label>
+                    <textarea class="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="message" rows="6" placeholder="Please enter query..."></textarea>
+                </div>
+                <div class="flex items-center justify-center">
+                    <button class="bg-green-700 hover:bg-green-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
+                        Submit
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="w-full lg:w-5/12 px-4">
+            <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+                <h2 class="text-3xl font-bold mb-2">Contact me</h2>
+                <p class="text-gray-600 mb-6">
+                    Tell me your experience with <strong>RouteQ</strong>. I like to work more on this project and your valuable feedback will help me a lot! Thanks for visiting!
+                    <br><br>
+                    from,
+                    <br>
+                    <span class="text-blue-600 font-bold">Syed Arshad Ali</span>
+                </p>
+                <div class="flex justify-center space-x-4">
+                    <a href="#" class="text-blue-500 hover:text-blue-700">GitHub</a>
+                    <a href="#" class="text-blue-500 hover:text-blue-700">LinkedIn</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block scripts %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const menuToggle = document.getElementById('menu-toggle');
+      const closeSidebar = document.getElementById('close-sidebar');
+      const sidebar = document.getElementById('sidebar');
+
+      function toggleSidebar() {
+          sidebar.style.display = sidebar.style.display === 'none' ? 'block' : 'none';
+      }
+
+      menuToggle.addEventListener('click', toggleSidebar);
+      closeSidebar.addEventListener('click', toggleSidebar);
+
+      function handleResize() {
+          if (window.innerWidth >= 1024) {  // lg breakpoint
+              sidebar.style.display = 'block';
+          } else {
+              sidebar.style.display = 'none';
+          }
+      }
+
+      window.addEventListener('resize', handleResize);
+      handleResize(); // Initial call
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+      const navbarToggle = document.getElementById('navbar-toggle');
+      const navbarSticky = document.getElementById('navbar-sticky');
+
+      navbarToggle.addEventListener('click', function() {
+          navbarSticky.classList.toggle('hidden');
+      });
+  });
+</script>
+
+{% endblock scripts %}
