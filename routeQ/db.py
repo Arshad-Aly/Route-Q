@@ -14,8 +14,3 @@ if DATABASE_URL is not None:
         conn_health_checks=True
     )
     }
-
-# PGHOST='ep-yellow-flower-a1bfypfr.ap-southeast-1.aws.neon.tech'
-# PGDATABASE='neondb'
-# PGUSER='neondb_owner'
-# PGPASSWORD='tPm93BsEzSfd'
